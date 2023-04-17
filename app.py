@@ -91,7 +91,7 @@ def main():
     html_temp="""
     <body style="background-color:red;">
     <div style="background-color:teal;padding:10px">
-    <h2 style="color:white;text-align:center;">Face recognition app</h2>
+    <h2 style="color:white;text-align:center;">Emotion recognition app</h2>
     </div>
     </body>
     """
