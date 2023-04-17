@@ -4,11 +4,12 @@ import os
 from PIL import Image
 import  numpy as np
 import tensorflow as tf
+import yagmail
 caspath=os.path.dirname(cv2.__file__)+"/data/haarcascade_frontalface_default.xml"
 face_cascade=cv2.CascadeClassifier(caspath)
 new_model=tf.keras.models.load_model("trained_model.h5")
 #new_model=cv2.face.LBPHFaceRecognizer_create()
-def detect_faces(image):
+def detect_faces(image,emo):
     img = np.array(image.convert('RGB'))
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray, 1.1, 4)
@@ -84,7 +85,7 @@ def detect_faces(image):
                 cv2.putText(img, emo, (100, 150), font, 3, (0, 0, 255), 2, cv2.LINE_4)
                 cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255))
 
-    return img
+    return img,emo
 def main():
     st.title("Face Emotion Recognizer")
     html_temp="""
@@ -95,14 +96,26 @@ def main():
     </body>
     """
     st.markdown(html_temp,unsafe_allow_html=True)
-
+    emo=''
     image_file=st.file_uploader("Upload Image",type=['jpg','png','jpeg'])
     if image_file is not None:
         image=Image.open(image_file)
         st.text("original Image")
         st.image(image)
     if st.button("Recognise"):
-        result_img=detect_faces(image)
+        result_img, emotion=detect_faces(image,emo)
+        dat = "The Uploaded Face is " + emotion
         st.image(result_img)
+        st.download_button("Download Analysis", dat, file_name='Processed_Image.txt', key='Download Image Analysis')
+    rec = st.text_input('Enter your email')
+    if st.button("Mail to me"):
+          result_img, emotion = detect_faces(image, emo)
+          dat = "The Uploaded Face is " + emotion
+          if(len(rec)!=0):
+           yag = yagmail.SMTP('devanshkumaravi@gmail.com', 'oowhmqyyreotkwys')
+           contents = [dat]
+           yag.send(rec, 'subject', contents)
+          else:
+           st.warning('Please Enter Your Email', icon="⚠️")
 if __name__== '__main__':
     main()
